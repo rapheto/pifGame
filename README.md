@@ -1,5 +1,5 @@
 Equipe:
-Alessandra 
-Raphael 
-Rayane
-Samuel
+    Alessandra,
+    Raphael,
+    Rayane,
+    Samuel.
