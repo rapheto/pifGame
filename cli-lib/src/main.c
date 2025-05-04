@@ -27,7 +27,7 @@ void printHello(int nextX, int nextY)
 
 void printKey(int ch)
 {
-    screenSetColor(YELLOW, DARKGRAY);
+    //screenSetColor(YELLOW, DARKGRAY);
     screenGotoxy(35, 22);
     printf("Key code :");
 
@@ -44,6 +44,38 @@ void printKey(int ch)
     }
 }
 
+void movimentacao(int ch){
+    if (ch == 119)
+    {
+        screenSetColor(RED, DARKGRAY);
+        printKey(ch);
+        screenUpdate();
+    }
+    else if (ch == 115)
+    {
+        screenSetColor(GREEN, DARKGRAY);
+        printKey(ch);
+        screenUpdate();
+    }
+    else if (ch == 100)
+    {
+        screenSetColor(BLUE, DARKGRAY);
+        printKey(ch);
+        screenUpdate();
+    }
+    else if (ch == 97)
+    {
+        screenSetColor(MAGENTA, DARKGRAY);
+        printKey(ch);
+        screenUpdate();
+    }
+    else{
+        screenSetColor(YELLOW, DARKGRAY);
+        printKey(ch);
+        screenUpdate();
+    }
+}
+
 int main() 
 {
     static int ch = 0;
@@ -56,25 +88,25 @@ int main()
     printHello(x, y);
     screenUpdate();
 
-    while (ch != 10 && timer <= 100) //enter or 5s
+    while (ch != 10 && timer <= 1000) //enter or 5s
     {
         // Handle user input
         if (keyhit()) 
         {
             ch = readch();
-            printKey(ch);
-            screenUpdate();
+            movimentacao(ch);
+  
         }
 
         // Update game state (move elements, verify collision, etc)
         if (timerTimeOver() == 1)
         {
             int newX = x + incX;
-            if (newX >= (MAXX -strlen("Hello World") -1) || newX <= MINX+1) incX = -incX;
             int newY = y + incY;
+            if (newX >= (MAXX -strlen("Hello World") -1) || newX <= MINX+1) incX = -incX;
             if (newY >= MAXY-1 || newY <= MINY+1) incY = -incY;
-
-            printHello(newX, newY);
+            
+            
 
             screenUpdate();
             timer++;
