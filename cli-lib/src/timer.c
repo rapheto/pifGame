@@ -9,6 +9,8 @@
 #include <sys/time.h>
 #include <stdio.h>
 
+#include <unistd.h>
+
 static struct timeval timer, now;
 static int delay = -1;
 
@@ -52,4 +54,8 @@ int timerTimeOver()
 void timerPrint()
 {
     printf("Timer:  %d", getTimeDiff());
+}
+
+void timerDelay(int ms) {
+    usleep(ms * 1000);
 }
