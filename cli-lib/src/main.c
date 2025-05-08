@@ -11,7 +11,7 @@
 #include "keyboard.h"
 #include "timer.h"
 
-int x = 34, y = 12;
+float x = 34, y = 12;
 int incX = 1, incY = 1;
 
 void printHello(int nextX, int nextY)
@@ -45,34 +45,50 @@ void printKey(int ch)
 }
 
 void movimentacao(int ch){
-    if (ch == 119)
+    screenGotoxy(x, y);
+    printf("           ");
+    /*if (ch == 119 && y > MINY + 1)
     {
+        y = y - 0.5;
         screenSetColor(RED, DARKGRAY);
-        printKey(ch);
-        screenUpdate();
     }
-    else if (ch == 115)
+    else if (ch == 115 && y < MAXY - 1)
     {
+        y++;
         screenSetColor(GREEN, DARKGRAY);
-        printKey(ch);
-        screenUpdate();
-    }
-    else if (ch == 100)
+    }*/
+    if (ch == 100 && x < MAXX - strlen("I---I") - 1)
     {
+        x = x + 1.5f;
         screenSetColor(BLUE, DARKGRAY);
-        printKey(ch);
-        screenUpdate();
     }
-    else if (ch == 97)
+    else if (ch == 97 && x > MINX + 1)
     {
+        x = x - 1.5f;
         screenSetColor(MAGENTA, DARKGRAY);
-        printKey(ch);
-        screenUpdate();
     }
     else{
-        screenSetColor(YELLOW, DARKGRAY);
-        printKey(ch);
-        screenUpdate();
+        screenSetColor(YELLOW, DARKGRAY);   
+    }
+    screenGotoxy(x, y);
+    printf("I---I");
+    printKey(ch);
+    screenUpdate();
+}
+
+void bullet(int nextY){
+    screenGotoxy(x, y - 2);
+    printf("II");
+    y = nextY;
+    screenGotoxy(x, y);
+    printf("  ");
+    screenUpdate();
+}
+
+void atirar(int ch){
+    int isShooting = 0;
+    if(ch == 32 && !isShooting){
+        bullet(2);
     }
 }
 
@@ -80,12 +96,12 @@ int main()
 {
     static int ch = 0;
     static long timer = 0;
-
+    
     screenInit(1);
     keyboardInit();
     timerInit(50);
 
-    printHello(x, y);
+    //printHello(x, y);
     screenUpdate();
 
     while (ch != 10 && timer <= 1000) //enter or 5s
@@ -95,19 +111,14 @@ int main()
         {
             ch = readch();
             movimentacao(ch);
+            atirar(ch);
   
         }
 
         // Update game state (move elements, verify collision, etc)
         if (timerTimeOver() == 1)
         {
-            int newX = x + incX;
-            int newY = y + incY;
-            if (newX >= (MAXX -strlen("Hello World") -1) || newX <= MINX+1) incX = -incX;
-            if (newY >= MAXY-1 || newY <= MINY+1) incY = -incY;
             
-            
-
             screenUpdate();
             timer++;
         }
