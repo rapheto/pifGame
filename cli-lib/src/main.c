@@ -74,7 +74,9 @@ void atirar(int ch){
     if (ch == 32)
     {
         isShooting = 1;
+        printf("Atirou:%d",isShooting);
         bullet(1);
+        printf("Atirou:%d",isShooting);
     }
 }
 
@@ -88,7 +90,7 @@ int main()
     timerInit(50);
 
     movimentacao(0);
-    
+
     screenUpdate();
 
     while (ch != 10 && timer <= 1000) //enter or 5s
@@ -100,9 +102,8 @@ int main()
             movimentacao(ch);
             if(isShooting == 0){
                 atirar(ch);
-            }
-            
                 
+            }
         }
 
         // Update game state (move elements, verify collision, etc)
