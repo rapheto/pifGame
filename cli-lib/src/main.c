@@ -11,11 +11,15 @@
 #include "keyboard.h"
 #include "timer.h"
 
-float x = 37, y = 22;
+float x = 48, y = 28;
 int incX = 1, incY = 1;
 
 //Bool
 int isShooting = 0;
+
+int bulletSpeed = 1;
+int bulletX = 0;
+int bulletY = 0;
 
 void movimentacao(int ch){
     screenGotoxy(x, y);
@@ -30,7 +34,7 @@ void movimentacao(int ch){
         y++;
         screenSetColor(GREEN, DARKGRAY);
     }*/
-    if (ch == 100 && x < MAXX - strlen("I--I") - 1)
+    if (ch == 100 && x < MAXX - strlen("<I--I>") - 1)
     {
         x = x + 1;
         screenSetColor(BLUE, DARKGRAY);
@@ -44,40 +48,33 @@ void movimentacao(int ch){
         screenSetColor(YELLOW, DARKGRAY);   
     }
     screenGotoxy(x, y);
-    printf("I--I");
+    printf("<I--I>");
     screenUpdate();
 }
 
-void bullet(int speedY){
-    int bulletX = (int)x + 1;
-    int bulletY = (int)y - 1;
-    
-    while (bulletY > MINY + 1) {
-        screenGotoxy(bulletX, bulletY + speedY);
+void bullet(){
+    screenGotoxy(bulletX, bulletY + bulletSpeed);
+    printf("    "); 
+
+    screenGotoxy(bulletX, bulletY);
+    printf("||");
+
+    screenUpdate();
+
+    bulletY -= bulletSpeed;
+
+    if (bulletY <= MINY + 2) {
+        screenGotoxy(bulletX, bulletY + bulletSpeed);
         printf("  ");
-
-        screenGotoxy(bulletX, bulletY);
-        printf("||");
-    
-        screenUpdate();
-        bulletY = bulletY - speedY;
-        timerDelay(50);
-
+        isShooting = 0;
     }
 
-    screenGotoxy(bulletX, bulletY + speedY);
-    printf("  ");
-    isShooting = 0;
 }
 
-void atirar(int ch){
-    if (ch == 32)
-    {
-        isShooting = 1;
-        printf("Atirou:%d",isShooting);
-        bullet(1);
-        printf("Atirou:%d",isShooting);
-    }
+void atirar(){
+    isShooting = 1;
+    bulletX = (int)x + 2;
+    bulletY = (int)y - 2;
 }
 
 int main() 
@@ -95,25 +92,25 @@ int main()
 
     while (ch != 10 && timer <= 1000) //enter or 5s
     {
-        // Handle user input
-        if (keyhit()) 
-        {
+        if (keyhit()) {
             ch = readch();
-            movimentacao(ch);
-            if(isShooting == 0){
-                atirar(ch);
-                
+    
+            if (ch == 32 && !isShooting) {
+                atirar();
+            } else {
+                movimentacao(ch);
             }
         }
 
         // Update game state (move elements, verify collision, etc)
         if (timerTimeOver() == 1)
         {
-            int newX = x + incX;
+            /*int newX = x + incX;
             if (newX >= (MAXX -strlen("Hello World") -1) || newX <= MINX+1) incX = -incX;
             int newY = y + incY;
             if (newX >= (MAXX -strlen("Hello World") -1) || newX <= MINX+1) incX = -incX;
-            if (newY >= MAXY-1 || newY <= MINY+1) incY = -incY;
+            if (newY >= MAXY-1 || newY <= MINY+1) incY = -incY;*/
+            bullet();
             screenUpdate();
             timer++;
         }
