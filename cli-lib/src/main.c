@@ -6,14 +6,17 @@
  */
 
 #include <string.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include "screen.h"
 #include "keyboard.h"
 #include "timer.h"
 
-float x = 48, y = 33; // Posicao Inicial do jogador
+#define MAX_ASTEROIDES 10
 
-int incX = 1; // Tamanho da movimentacao do jogador
+float x = 48, y = 33; // Posição Inicial do jogador
+int incX = 1;         // Tamanho da movimentação do jogador
 
 // Bool
 int isShooting = 0;
@@ -29,64 +32,116 @@ typedef struct
     char resposta[2];
 } Proposicao;
 
+typedef struct
+{
+    int x;
+    int y;
+    int ativo;
+    int tipo; // Tipo para animação
+} Asteroide;
+
+Asteroide asteroides[MAX_ASTEROIDES];
+
 void caixaLogica(Proposicao expressao)
 {
     screenGotoxy(3, 3);
-    printf("EXPRESSÃO:%s", expressao.valor);
+    printf("EXPRESSÃO: %s", expressao.valor);
     screenGotoxy(2, 5);
     printf("-------------------------------------------------------------------------------------------------");
 }
 
 void movimentacao(int ch)
 {
-    screenGotoxy(x, y); // vai para posicao inicial
-    printf("      ");   // Apaga o objeto
-    /*if (ch == 119 && y > MINY + 1)
+    screenGotoxy(x, y);
+    printf("      "); // Apaga o jogador anterior
+
+    if (ch == 100 && x < MAXX - strlen("<I--I>") - 1)
     {
-        y = y - 0.5;
+        x += incX;
     }
-    else if (ch == 115 && y < MAXY - 1)
+    else if (ch == 97 && x > MINX + 1)
     {
-        y++;
-    }*/
-    if (ch == 100 && x < MAXX - strlen("<I--I>") - 1) // Move direita
-    {
-        x = x + incX;
+        x -= incX;
     }
-    else if (ch == 97 && x > MINX + 1) // Move esquerda
-    {
-        x = x - incX;
-    }
+
     screenSetColor(YELLOW, DARKGRAY);
-    screenGotoxy(x, y); // Objeto vai para a nova posicao
-    printf("<I--I>");   // Crio o objeto
-    screenUpdate();     // Atualiza a tela
+    screenGotoxy(x, y);
+    printf("<I--I>");
+    screenUpdate();
 }
 
 void bullet()
 {
-    screenGotoxy(bulletX, bulletY + bulletSpeed); // Nao deixa criar varias balas na tela
-    printf("    ");                               // Apaga
+    screenGotoxy(bulletX, bulletY + bulletSpeed);
+    printf("  "); // Apaga a bala anterior
 
-    screenGotoxy(bulletX, bulletY); // vai para a posicao do jogador
-    printf("||");                   // Cria
+    screenGotoxy(bulletX, bulletY);
+    printf("||"); // Cria a bala
 
-    bulletY -= bulletSpeed; // Faz a bala subir
+    bulletY -= bulletSpeed;
 
     if (bulletY <= MINY + 4)
-    {                                                 // Destruir a bala caso ela chegue no limite
-        screenGotoxy(bulletX, bulletY + bulletSpeed); // Faz a bala não travar na borda
-        printf("  ");                                 // Destroi ela
-        isShooting = 0;                               // Permitir atirar de novo
+    {
+        screenGotoxy(bulletX, bulletY + bulletSpeed);
+        printf("  ");
+        isShooting = 0;
     }
+
     screenUpdate();
 }
 
 void atirar()
-{                    // Arma
-    isShooting = 1;  // Bloquear atirar de novo
-    bulletX = x + 2; // Pega a posicao do meio do jogador
-    bulletY = y - 2; // Coloca ele acima do jogador
+{
+    isShooting = 1;
+    bulletX = x + 2;
+    bulletY = y - 2;
+}
+
+void criarAsteroide()
+{
+    for (int i = 0; i < MAX_ASTEROIDES; i++)
+    {
+        if (!asteroides[i].ativo)
+        {
+            asteroides[i].ativo = 1;
+            asteroides[i].x = rand() % (MAXX - 10) + 5;
+            asteroides[i].y = 6;
+            asteroides[i].tipo = rand() % 2; // Alterna entre dois tipos
+            break;
+        }
+    }
+}
+
+int asteroidTick = 0;
+void atualizarAsteroides()
+{
+    asteroidTick++;
+    if (asteroidTick % 3 != 0)
+        return; // só move a cada 3 atualizações (ajuste esse valor)
+
+    for (int i = 0; i < MAX_ASTEROIDES; i++)
+    {
+        if (asteroides[i].ativo)
+        {
+            screenGotoxy(asteroides[i].x, asteroides[i].y);
+            printf("   ");
+
+            asteroides[i].y++;
+
+            if (asteroides[i].y >= MAXY - 1)
+            {
+                asteroides[i].ativo = 0;
+            }
+            else
+            {
+                screenGotoxy(asteroides[i].x, asteroides[i].y);
+                if (asteroides[i].tipo == 0)
+                    printf(" @ ");
+                else
+                    printf(" * ");
+            }
+        }
+    }
 }
 
 int main()
@@ -98,42 +153,48 @@ int main()
     strcpy(propAtual.valor, "(V ∧ ¬F)");
     strcpy(propAtual.resposta, "V");
 
+    srand(time(NULL)); // Inicializa números aleatórios
+
     screenInit(1);
     keyboardInit();
-    timerInit(33); // Atualiza o jogo a cada tantos milisegundos (1000ms / 33ms = 30 FPS)
+    timerInit(33);
     caixaLogica(propAtual);
 
     while (ch != 10 && timer <= 1000)
     {
         if (keyhit())
-        {                  // funcao de identificar quando uma tecla é pressionada
-            ch = readch(); // readch() le a tecla clicada pelo jogador
+        {
+            ch = readch();
 
-            // Atirar
             if (ch == 32 && !isShooting)
             {
                 atirar();
             }
-            // Movimentar
             else
             {
                 movimentacao(ch);
             }
         }
 
-        // Update game state (move elements, verify collision, etc)
         if (timerTimeOver() == 1)
         {
             if (isShooting)
-            {             // Impedir a bala de destruir o cenário
-                bullet(); // Só chama se estiver atirando
+            {
+                bullet();
             }
+
+            if (rand() % 10 == 0)
+            {
+                criarAsteroide();
+            }
+
+            atualizarAsteroides();
+
             screenUpdate();
             timer++;
         }
     }
 
-    // Encerra o jogo
     keyboardDestroy();
     screenDestroy();
     timerDestroy();
