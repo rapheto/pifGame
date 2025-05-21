@@ -1,10 +1,3 @@
-/**
- * main.h
- * Created on Aug, 23th 2023
- * Author: Tiago Barros
- * Based on "From C to C++ course - 2002"
- */
-
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
@@ -40,14 +33,91 @@ typedef struct
     int tipo; // Tipo para animação
 } Asteroide;
 
+typedef struct{
+    int vidas;
+    int pontos;
+    char nickname[20];
+} Player;
+
 Asteroide asteroides[MAX_ASTEROIDES];
 
-void caixaLogica(Proposicao expressao)
+void verificarColisaoBala(Player *playerPontos)
+{
+    for (int i = 0; i < MAX_ASTEROIDES; i++)
+    {
+        if (asteroides[i].ativo)
+        {
+            // Verificar colisão na mesma coluna e linha
+            if ((bulletX >= asteroides[i].x && bulletX <= asteroides[i].x + 2) &&
+                bulletY == asteroides[i].y)
+            {
+                if (asteroides[i].tipo == 0)
+                {
+                    
+                    printf("Acertou V\n");
+                    playerPontos->pontos += 100;
+                }
+                else 
+                {
+                    playerPontos->pontos -= 10;
+                    printf("Acertou F\n");   
+                }
+
+                // Remover o  meteoro e a bala
+                asteroides[i].ativo = 0;
+                screenGotoxy(asteroides[i].x, asteroides[i].y);
+                printf("   ");
+
+                screenGotoxy(bulletX, bulletY);
+                printf("  ");
+
+                isShooting = 0;
+                break;
+            }
+        }
+    }
+}
+
+void verificarColisaoJogador(Player *player)
+{
+    for (int i = 0; i < MAX_ASTEROIDES; i++)
+    {
+        if (asteroides[i].ativo)
+        {
+            if (asteroides[i].y == y &&
+                asteroides[i].x >= x && asteroides[i].x <= x + 4)
+            {
+                player->vidas -= 1;
+                asteroides[i].ativo = 0;
+
+                screenGotoxy(asteroides[i].x, asteroides[i].y);
+                printf("   ");
+                screenUpdate();
+
+                // Você pode adicionar som, ou tela piscando aqui se quiser
+            }
+        }
+    }
+}
+
+void caixaLogica(Proposicao expressao, Player playerStats)
 {
     screenGotoxy(3, 3);
     printf("EXPRESSÃO: %s", expressao.valor);
     screenGotoxy(2, 5);
-    printf("-------------------------------------------------------------------------------------------------");
+    
+    //Bordas
+    printf("_");
+    screenGotoxy(MAXX*0.5, 2);
+    printf("|");
+    screenGotoxy(MAXX*0.5, 3);
+    printf("|");
+    screenGotoxy(MAXX*0.5, 4);
+    printf("|");
+
+    screenGotoxy((MAXX*0.5) + 8, 3);
+    printf("VIDAS: %d            PONTUAÇÃO: %04d", playerStats.vidas, playerStats.pontos);
+
 }
 
 void movimentacao(int ch)
@@ -136,9 +206,9 @@ void atualizarAsteroides()
             {
                 screenGotoxy(asteroides[i].x, asteroides[i].y);
                 if (asteroides[i].tipo == 0)
-                    printf(" @ ");
+                    printf(" V ");
                 else
-                    printf(" * ");
+                    printf(" F ");
             }
         }
     }
@@ -149,6 +219,11 @@ int main()
     static int ch = 0;
     static long timer = 0;
 
+    //Player
+    Player player;
+    player.vidas = 3;
+    player.pontos = 0;
+
     Proposicao propAtual;
     strcpy(propAtual.valor, "(V ∧ ¬F)");
     strcpy(propAtual.resposta, "V");
@@ -158,10 +233,11 @@ int main()
     screenInit(1);
     keyboardInit();
     timerInit(33);
-    caixaLogica(propAtual);
+    caixaLogica(propAtual, player);
 
     while (ch != 10 && timer <= 1000)
     {
+        caixaLogica(propAtual, player);
         if (keyhit())
         {
             ch = readch();
@@ -181,6 +257,7 @@ int main()
             if (isShooting)
             {
                 bullet();
+                verificarColisaoBala(&player);
             }
 
             if (rand() % 10 == 0)
@@ -189,6 +266,8 @@ int main()
             }
 
             atualizarAsteroides();
+
+            verificarColisaoJogador(&player);
 
             screenUpdate();
             timer++;
@@ -199,5 +278,5 @@ int main()
     screenDestroy();
     timerDestroy();
 
-    return 0;
+    return 0;
 }
