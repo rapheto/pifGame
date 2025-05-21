@@ -19,6 +19,9 @@ int bulletSpeed = 1;
 int bulletX = 50;
 int bulletY = 31;
 
+//Operadores
+char operadores[][4] = {"∧", "∨", "→", "↔"};
+
 typedef struct
 {
     char valor[20];
@@ -41,6 +44,50 @@ typedef struct{
 
 Asteroide asteroides[MAX_ASTEROIDES];
 
+
+//Gerador de proposições
+char negar(char valor) {
+    return (valor == 'V') ? 'F' : 'V';
+}
+
+void gerarProposicaoSimples(Proposicao *prop)
+{
+    char A = (rand() % 2) ? 'V' : 'F';
+    char B = (rand() % 2) ? 'V' : 'F';
+
+    int negaA = rand() % 2;
+    int negaB = rand() % 2;
+
+    char valA = negaA ? negar(A) : A;
+    char valB = negaB ? negar(B) : B;
+
+    int opIndex = rand() % 4;
+    char *operador = operadores[opIndex];
+
+    // Monta a string da expressão
+    char exprA[4], exprB[4];
+    sprintf(exprA, "%s%c", negaA ? "¬" : "", A);
+    sprintf(exprB, "%s%c", negaB ? "¬" : "", B);
+    sprintf(prop->valor, "(%s %s %s)", exprA, operador, exprB);
+
+    // Avalia a expressão
+    char resultado;
+
+    if (strcmp(operador, "∧") == 0)
+        resultado = (valA == 'V' && valB == 'V') ? 'V' : 'F';
+    else if (strcmp(operador, "∨") == 0)
+        resultado = (valA == 'F' && valB == 'F') ? 'F' : 'V';
+    else if (strcmp(operador, "→") == 0)
+        resultado = (valA == 'V' && valB == 'F') ? 'F' : 'V';
+    else if (strcmp(operador, "↔") == 0)
+        resultado = (valA == valB) ? 'V' : 'F';
+
+    prop->resposta[0] = resultado;
+    prop->resposta[1] = '\0';
+}
+
+
+//Colisores
 void verificarColisaoBala(Player *playerPontos)
 {
     for (int i = 0; i < MAX_ASTEROIDES; i++)
@@ -100,6 +147,8 @@ void verificarColisaoJogador(Player *player)
     }
 }
 
+
+//Cenário
 void caixaLogica(Proposicao expressao, Player playerStats)
 {
     screenGotoxy(3, 3);
@@ -120,6 +169,8 @@ void caixaLogica(Proposicao expressao, Player playerStats)
 
 }
 
+
+//Player
 void movimentacao(int ch)
 {
     screenGotoxy(x, y);
@@ -167,6 +218,8 @@ void atirar()
     bulletY = y - 2;
 }
 
+
+//Asteroides ou Inimigos
 void criarAsteroide()
 {
     for (int i = 0; i < MAX_ASTEROIDES; i++)
@@ -225,8 +278,7 @@ int main()
     player.pontos = 0;
 
     Proposicao propAtual;
-    strcpy(propAtual.valor, "(V ∧ ¬F)");
-    strcpy(propAtual.resposta, "V");
+    gerarProposicaoSimples(&propAtual);
 
     srand(time(NULL)); // Inicializa números aleatórios
 
