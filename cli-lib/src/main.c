@@ -25,7 +25,7 @@ char operadores[][4] = {"∧", "∨", "→", "↔"};
 typedef struct
 {
     char valor[20];
-    char resposta[2];
+    char resposta;
 } Proposicao;
 
 typedef struct
@@ -82,46 +82,54 @@ void gerarProposicaoSimples(Proposicao *prop)
     else if (strcmp(operador, "↔") == 0)
         resultado = (valA == valB) ? 'V' : 'F';
 
-    prop->resposta[0] = resultado;
-    prop->resposta[1] = '\0';
+    prop->resposta = resultado;
 }
 
 
 //Colisores
-void verificarColisaoBala(Player *playerPontos)
+void verificarColisaoBala(Player *playerPontos, Proposicao *prop)
 {
     for (int i = 0; i < MAX_ASTEROIDES; i++)
     {
         if (asteroides[i].ativo)
         {
             // Verificar colisão na mesma coluna e linha
-            if ((bulletX >= asteroides[i].x && bulletX <= asteroides[i].x + 2) &&
-                bulletY == asteroides[i].y)
+            if (bulletX == asteroides[i].x && bulletY == asteroides[i].y)
             {
-                if (asteroides[i].tipo == 0)
+                int respostaEsperada = (prop->resposta == 'V') ? 0 : 1; //Converte o meteoro V e F em 0 ou 1
+
+                if (asteroides[i].tipo == respostaEsperada)
                 {
-                    
-                    printf("Acertou V\n");
                     playerPontos->pontos += 100;
+                    gerarProposicaoSimples(prop);
                 }
-                else 
+                else
                 {
-                    playerPontos->pontos -= 10;
-                    printf("Acertou F\n");   
+                    playerPontos->vidas -= 1;
+                    playerPontos->pontos -= 50;
+                    gerarProposicaoSimples(prop);
                 }
 
                 // Remover o  meteoro e a bala
                 asteroides[i].ativo = 0;
                 screenGotoxy(asteroides[i].x, asteroides[i].y);
-                printf("   ");
+                printf(" ");
 
                 screenGotoxy(bulletX, bulletY);
-                printf("  ");
+                printf(" ");
+                screenGotoxy(bulletX, bulletY + bulletSpeed);
+                printf(" ");
+
+                bulletX = -1;
+                bulletY = -1;
 
                 isShooting = 0;
+                asteroides[i].ativo = 0;
+                screenUpdate();
                 break;
             }
         }
+        
     }
 }
 
@@ -138,7 +146,7 @@ void verificarColisaoJogador(Player *player)
                 asteroides[i].ativo = 0;
 
                 screenGotoxy(asteroides[i].x, asteroides[i].y);
-                printf("   ");
+                printf(" ");
                 screenUpdate();
 
                 // Você pode adicionar som, ou tela piscando aqui se quiser
@@ -152,11 +160,11 @@ void verificarColisaoJogador(Player *player)
 void caixaLogica(Proposicao expressao, Player playerStats)
 {
     screenGotoxy(3, 3);
-    printf("EXPRESSÃO: %s", expressao.valor);
-    screenGotoxy(2, 5);
+    printf("EXPRESSÃO: %s    RES:%c  ", expressao.valor, expressao.resposta);
     
     //Bordas
-    printf("_");
+    screenGotoxy(2, 5);
+    printf("_________________________________________________________________________________________________");
     screenGotoxy(MAXX*0.5, 2);
     printf("|");
     screenGotoxy(MAXX*0.5, 3);
@@ -176,7 +184,7 @@ void movimentacao(int ch)
     screenGotoxy(x, y);
     printf("      "); // Apaga o jogador anterior
 
-    if (ch == 100 && x < MAXX - strlen("<I--I>") - 1)
+    if (ch == 100 && x < MAXX - strlen("<I-I>") - 1)
     {
         x += incX;
     }
@@ -187,27 +195,25 @@ void movimentacao(int ch)
 
     screenSetColor(YELLOW, DARKGRAY);
     screenGotoxy(x, y);
-    printf("<I--I>");
+    printf("<I-I>");
     screenUpdate();
 }
 
 void bullet()
 {
     screenGotoxy(bulletX, bulletY + bulletSpeed);
-    printf("  "); // Apaga a bala anterior
+    printf(" "); // Apaga a bala anterior
 
     screenGotoxy(bulletX, bulletY);
-    printf("||"); // Cria a bala
+    printf("|"); // Cria a bala
 
     bulletY -= bulletSpeed;
-
     if (bulletY <= MINY + 4)
     {
         screenGotoxy(bulletX, bulletY + bulletSpeed);
-        printf("  ");
+        printf(" ");
         isShooting = 0;
     }
-
     screenUpdate();
 }
 
@@ -259,16 +265,26 @@ void atualizarAsteroides()
             {
                 screenGotoxy(asteroides[i].x, asteroides[i].y);
                 if (asteroides[i].tipo == 0)
-                    printf(" V ");
+                    printf("V");
                 else
-                    printf(" F ");
+                    printf("F");
             }
         }
     }
 }
 
+void salvarPontuacao(Player *playerPontos){
+    char nome[20] = "jogador";
+    int pontuacao = playerPontos->pontos;
+    FILE *arquivo = fopen("cli-lib/pont/pontos.txt", "a");
+    fprintf(arquivo, "%s: %d\n", nome, pontuacao);
+    fclose(arquivo);
+}
+
+
 int main()
 {
+    
     static int ch = 0;
     static long timer = 0;
 
@@ -284,9 +300,8 @@ int main()
 
     screenInit(1);
     keyboardInit();
-    timerInit(33);
+    timerInit(50);
     caixaLogica(propAtual, player);
-
     while (ch != 10 && timer <= 1000)
     {
         caixaLogica(propAtual, player);
@@ -309,7 +324,7 @@ int main()
             if (isShooting)
             {
                 bullet();
-                verificarColisaoBala(&player);
+                verificarColisaoBala(&player, &propAtual);
             }
 
             if (rand() % 10 == 0)
@@ -325,10 +340,11 @@ int main()
             timer++;
         }
     }
+    salvarPontuacao(&player);
 
     keyboardDestroy();
     screenDestroy();
     timerDestroy();
 
-    return 0;
+    return 0;
 }
