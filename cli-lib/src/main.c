@@ -107,6 +107,7 @@ void verificarColisaoBala(Player *playerPontos, Proposicao *prop)
                 {
                     playerPontos->vidas -= 1;
                     playerPontos->pontos -= 50;
+                    gerarProposicaoSimples(prop);
                 }
 
                 // Remover o  meteoro e a bala
@@ -272,9 +273,18 @@ void atualizarAsteroides()
     }
 }
 
+void salvarPontuacao(Player *playerPontos){
+    char nome[20] = "jogador";
+    int pontuacao = playerPontos->pontos;
+    FILE *arquivo = fopen("cli-lib/pont/pontos.txt", "a");
+    fprintf(arquivo, "%s: %d\n", nome, pontuacao);
+    fclose(arquivo);
+}
+
 
 int main()
 {
+    
     static int ch = 0;
     static long timer = 0;
 
@@ -292,7 +302,6 @@ int main()
     keyboardInit();
     timerInit(50);
     caixaLogica(propAtual, player);
-
     while (ch != 10 && timer <= 1000)
     {
         caixaLogica(propAtual, player);
@@ -331,6 +340,7 @@ int main()
             timer++;
         }
     }
+    salvarPontuacao(&player);
 
     keyboardDestroy();
     screenDestroy();
