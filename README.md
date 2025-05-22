@@ -30,10 +30,11 @@ EMBARQUE DIGITAL
 
 
 ### Controles
-    Teclas A, S - Movimenta o jogador
-    Barra de espaço - Atira
+    Teclas A - D: Movimenta o jogador
+    Barra de espaço: Atira
 
 
 ### Pontuação
     O jogador pontua quando acerta a resposta da proposição lógica.
-    Acertar: +10 pontos
+    Acertar: +100 pontos
+    Errar: -50 pontos

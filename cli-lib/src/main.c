@@ -5,6 +5,8 @@
 #include "screen.h"
 #include "keyboard.h"
 #include "timer.h"
+#include "menu.h"
+#include "player.h"
 
 #define MAX_ASTEROIDES 10
 
@@ -36,14 +38,7 @@ typedef struct
     int tipo; // Tipo para animação
 } Asteroide;
 
-typedef struct{
-    int vidas;
-    int pontos;
-    char nickname[20];
-} Player;
-
 Asteroide asteroides[MAX_ASTEROIDES];
-
 
 //Gerador de proposições
 char negar(char valor) {
@@ -89,6 +84,7 @@ void gerarProposicaoSimples(Proposicao *prop)
 //Colisores
 void verificarColisaoBala(Player *playerPontos, Proposicao *prop)
 {
+    playerPontos = getPlayer();
     for (int i = 0; i < MAX_ASTEROIDES; i++)
     {
         if (asteroides[i].ativo)
@@ -100,13 +96,13 @@ void verificarColisaoBala(Player *playerPontos, Proposicao *prop)
 
                 if (asteroides[i].tipo == respostaEsperada)
                 {
-                    playerPontos->pontos += 100;
+                    setPontos(playerPontos->pontos += 100);
                     gerarProposicaoSimples(prop);
                 }
                 else
                 {
-                    playerPontos->vidas -= 1;
-                    playerPontos->pontos -= 50;
+                    setVidas(playerPontos->vidas -= 1);
+                    setPontos(playerPontos->pontos -= 50);
                     gerarProposicaoSimples(prop);
                 }
 
@@ -157,8 +153,9 @@ void verificarColisaoJogador(Player *player)
 
 
 //Cenário
-void caixaLogica(Proposicao expressao, Player playerStats)
+void caixaLogica(Proposicao expressao, Player *playerStats)
 {
+    playerStats = getPlayer();
     screenGotoxy(3, 3);
     printf("EXPRESSÃO: %s    RES:%c  ", expressao.valor, expressao.resposta);
     
@@ -173,7 +170,7 @@ void caixaLogica(Proposicao expressao, Player playerStats)
     printf("|");
 
     screenGotoxy((MAXX*0.5) + 8, 3);
-    printf("VIDAS: %d            PONTUAÇÃO: %04d", playerStats.vidas, playerStats.pontos);
+    printf("VIDAS: %d            PONTUAÇÃO: %04d", playerStats->vidas, playerStats->pontos);
 
 }
 
@@ -274,24 +271,21 @@ void atualizarAsteroides()
 }
 
 void salvarPontuacao(Player *playerPontos){
-    char nome[20] = "jogador";
+    playerPontos = getPlayer();
     int pontuacao = playerPontos->pontos;
     FILE *arquivo = fopen("cli-lib/pont/pontos.txt", "a");
-    fprintf(arquivo, "%s: %d\n", nome, pontuacao);
+    fprintf(arquivo, "%s: %d\n", playerPontos->nickname, pontuacao);
     fclose(arquivo);
 }
 
 
 int main()
 {
-    
+    Player player;
     static int ch = 0;
     static long timer = 0;
 
-    //Player
-    Player player;
-    player.vidas = 3;
-    player.pontos = 0;
+    iniciar_menu();
 
     Proposicao propAtual;
     gerarProposicaoSimples(&propAtual);
@@ -301,10 +295,10 @@ int main()
     screenInit(1);
     keyboardInit();
     timerInit(50);
-    caixaLogica(propAtual, player);
+    caixaLogica(propAtual, &player);
     while (ch != 10 && timer <= 1000)
     {
-        caixaLogica(propAtual, player);
+        caixaLogica(propAtual, &player);
         if (keyhit())
         {
             ch = readch();
