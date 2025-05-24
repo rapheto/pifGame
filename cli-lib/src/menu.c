@@ -2,6 +2,7 @@
 #include "keyboard.h"
 #include "timer.h"
 #include "player.h"
+#include "ranking.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -56,7 +57,11 @@ void menuOpcoes(){
     screenGotoxy(35, 20);
     printf( "2 - Como Jogar?" );
     screenGotoxy(35, 22);
-    printf ("3 - Sair" );
+    printf ("3 - Ranking" );
+    screenGotoxy(35, 24);
+    printf ("4 - Créditos" );
+    screenGotoxy(35, 24);
+    printf ("5 - Sair" );
 
 }
 
@@ -144,11 +149,32 @@ void comoJogar() {
     printf("            <I-I>");
     
 
-    screenGotoxy((MAXX/2) - 15, 27);
+    screenGotoxy((MAXX/2) - 15, MAXY - 2);
     printf("Pressione ENTER para voltar");
     animacaoNave();
     getchar();
 
+}
+
+void telaCreditos(){
+    screenClear();
+    screenDrawBorders();
+
+    screenGotoxy(45, 5);
+    printf("Criado por");
+
+    screenGotoxy(40, 9);
+    printf( "Alessandra Barbosa" );
+    screenGotoxy(40, 12);
+    printf( "Raphael Miranda" );
+    screenGotoxy(40, 15);
+    printf ("Rayane Cavalcanti");
+    screenGotoxy(40, 18);
+    printf ("Samuel Pereira");
+    
+    screenGotoxy((MAXX/2) - 15, MAXY - 2);
+    printf("Pressione ENTER para voltar");
+    getchar();
 }
 
 
@@ -167,16 +193,15 @@ int iniciar_menu() {
             break;
         }
         else if (c == '2') {
-            screenClear();
-            screenDrawBorders();
             comoJogar(); 
         }
         else if (c == '3') {
-            keyboardDestroy();
-            screenDestroy();
-            timerDestroy();
-
-            return 0;
+            screenClear();
+            screenDrawBorders();
+            mostrarRanking();
+        }
+        else if (c == '4'){
+            telaCreditos();
         }
     }
     return 0;

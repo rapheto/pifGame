@@ -7,6 +7,7 @@
 #include "timer.h"
 #include "menu.h"
 #include "player.h"
+#include "ranking.h"
 
 #define MAX_ASTEROIDES 10
 
@@ -21,8 +22,7 @@ int bulletSpeed = 1;
 int bulletX = 50;
 int bulletY = 31;
 
-//Operadores
-char operadores[][4] = {"∧", "∨", "→", "↔"};
+
 
 typedef struct
 {
@@ -40,6 +40,9 @@ typedef struct
 
 Asteroide asteroides[MAX_ASTEROIDES];
 
+
+//Operadores
+char operadores[][4] = {"∧", "∨", "→", "↔"};
 //Gerador de proposições
 char negar(char valor) {
     return (valor == 'V') ? 'F' : 'V';
@@ -82,9 +85,9 @@ void gerarProposicaoSimples(Proposicao *prop)
 
 
 //Colisores
-void verificarColisaoBala(Player *playerPontos, Proposicao *prop)
+void verificarColisaoBala(Proposicao *prop)
 {
-    playerPontos = getPlayer();
+    Player *playerPontos = getPlayer();
     for (int i = 0; i < MAX_ASTEROIDES; i++)
     {
         if (asteroides[i].ativo)
@@ -129,8 +132,9 @@ void verificarColisaoBala(Player *playerPontos, Proposicao *prop)
     }
 }
 
-void verificarColisaoJogador(Player *player)
+void verificarColisaoJogador()
 {
+    Player *player = getPlayer();
     for (int i = 0; i < MAX_ASTEROIDES; i++)
     {
         if (asteroides[i].ativo)
@@ -138,7 +142,7 @@ void verificarColisaoJogador(Player *player)
             if (asteroides[i].y == y &&
                 asteroides[i].x >= x && asteroides[i].x <= x + 4)
             {
-                player->vidas -= 1;
+                setVidas(player->vidas -= 1);
                 asteroides[i].ativo = 0;
 
                 screenGotoxy(asteroides[i].x, asteroides[i].y);
@@ -153,9 +157,9 @@ void verificarColisaoJogador(Player *player)
 
 
 //Cenário
-void caixaLogica(Proposicao expressao, Player *playerStats)
+void caixaLogica(Proposicao expressao)
 {
-    playerStats = getPlayer();
+    Player *playerStats = getPlayer();
     screenGotoxy(3, 3);
     printf("EXPRESSÃO: %s    RES:%c  ", expressao.valor, expressao.resposta);
     
@@ -270,20 +274,12 @@ void atualizarAsteroides()
     }
 }
 
-void salvarPontuacao(Player *playerPontos){
-    playerPontos = getPlayer();
-    int pontuacao = playerPontos->pontos;
-    FILE *arquivo = fopen("cli-lib/pont/pontos.txt", "a");
-    fprintf(arquivo, "%s: %d\n", playerPontos->nickname, pontuacao);
-    fclose(arquivo);
-}
-
-
 int main()
 {
-    Player player;
+    Player *p = getPlayer();
     static int ch = 0;
     static long timer = 0;
+    int canSave = 0;
 
     iniciar_menu();
 
@@ -295,10 +291,10 @@ int main()
     screenInit(1);
     keyboardInit();
     timerInit(50);
-    caixaLogica(propAtual, &player);
-    while (ch != 10 && timer <= 1000)
+    caixaLogica(propAtual);
+    while (p->vidas != 0)
     {
-        caixaLogica(propAtual, &player);
+        caixaLogica(propAtual);
         if (keyhit())
         {
             ch = readch();
@@ -318,7 +314,7 @@ int main()
             if (isShooting)
             {
                 bullet();
-                verificarColisaoBala(&player, &propAtual);
+                verificarColisaoBala(&propAtual);
             }
 
             if (rand() % 10 == 0)
@@ -328,14 +324,13 @@ int main()
 
             atualizarAsteroides();
 
-            verificarColisaoJogador(&player);
+            verificarColisaoJogador();
 
             screenUpdate();
             timer++;
         }
     }
-    salvarPontuacao(&player);
-
+    salvarPontuacao();
     keyboardDestroy();
     screenDestroy();
     timerDestroy();

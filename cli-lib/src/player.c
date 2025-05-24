@@ -4,7 +4,7 @@
 static Player player;
 
 void initPlayer(const char *nickname) {
-    player.vidas = 5;
+    player.vidas = 1;
     player.pontos = 0;     
     strncpy(player.nickname, nickname, MAX_NICKNAME_LENGTH - 1);
     player.nickname[MAX_NICKNAME_LENGTH - 1] = '\0';
