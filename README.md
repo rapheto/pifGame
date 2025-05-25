@@ -55,13 +55,6 @@
 ## Como Jogar?
 
 
-### Especificações
-    Essa biblioteca funciona com os seguintes sistemas:
-        - Linux based (Ubuntu, etc)
-        - MacOS
-    -É necessário ter o GCC instalado.
-
-
 ### Executando
     Abra seu terminal e vá até a pasta pifGame
     Em pifGame use o comando:
@@ -76,3 +69,8 @@
         $ gcc ./cli-lib/src/*.c -I ./cli-lib/include -o logica-estelar
 
 
+#### Especificações
+    Essa biblioteca funciona com os seguintes sistemas:
+        - Linux based (Ubuntu, etc)
+        - MacOS
+    -É necessário ter o GCC instalado.
