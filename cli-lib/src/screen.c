@@ -7,6 +7,7 @@
 
 #include "screen.h"
 
+//Desenha a tela do jogo no terminal
 void screenDrawBorders() 
 {
     char hbc = BOX_HLINE;
@@ -48,6 +49,7 @@ void screenDrawBorders()
     
 }
 
+//Inicia a tela
 void screenInit(int drawBorders)
 {
     screenClear();
@@ -56,6 +58,7 @@ void screenInit(int drawBorders)
     screenHideCursor();
 }
 
+//Destroi a tela
 void screenDestroy()
 {
     printf("%s[0;39;49m", ESC); // Reset colors
@@ -65,6 +68,7 @@ void screenDestroy()
     screenShowCursor();
 }
 
+//Manda o proximo item para a posição X e Y
 void screenGotoxy(int x, int y)
 {
     x = ( x<0 ? 0 : x>=MAXX ? MAXX-1 : x);
@@ -73,6 +77,7 @@ void screenGotoxy(int x, int y)
     printf("%s[f%s[%dB%s[%dC", ESC, ESC, y, ESC, x);
 }
 
+//Muda a cor de tudo na tela (cor dos itens, cor do background )
 void screenSetColor( screenColor fg, screenColor bg)
 {
     char atr[] = "[0;";

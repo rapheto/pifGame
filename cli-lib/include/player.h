@@ -10,9 +10,13 @@ typedef struct {
 } Player;
 
 void initPlayer(const char *nickname);
+
 Player* getPlayer();
+
 void setVidas(int vidas);
+
 void setPontos(int pontos);
+
 void setNickname(const char *nickname);
 
 #endif
