@@ -23,15 +23,20 @@
 
 
 ## Game Overview
-    Lógica Estelar é um jogo no estilo Space Invaders onde o objetivo principal é ensinar conceitos de lógica matemática de forma interativa e divertida para os alunos.
+    Lógica Estelar é um jogo no estilo Space Invaders onde o objetivo principal é ensinar 
+    conceitos de lógica matemática de forma interativa e divertida para os alunos.
 
-    Foi desenvolvido usando como base a biblioteca cli-lib, que serve para o desenvolvimento de aplicações e jogos em C.
+    Foi desenvolvido usando como base a biblioteca cli-lib, que serve para o
+    desenvolvimento de aplicações e jogos em C.
 
 
 
 
 ### Objetivos
-    O desafio é sobreviver o maior tempo possível, tomando decisões rápidas com base no raciocínio lógico, enquanto os obstáculos descem em direção à nave. Assim, o jogo combina habilidade, reflexo e aprendizado, reforçando o entendimento de expressões lógicas na prática.
+    O desafio é sobreviver o maior tempo possível, tomando decisões rápidas com base no
+    raciocínio lógico, enquanto os obstáculos descem em direção à nave. Assim, o jogo
+    combina habilidade, reflexo e aprendizado, reforçando o entendimento de expressões
+    lógicas na prática.
 
 ## Mecânica
 
