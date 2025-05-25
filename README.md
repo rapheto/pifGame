@@ -1,4 +1,5 @@
 # CESAR SCHOOL
+## ADS - EMBARQUE DIGITAL, 2025.1
 
 
     #      ##    ###  ###   ###   ##        ###   ###  ###  ###  #      ##    ##
@@ -9,7 +10,6 @@
 
 
 ## Jogo criado para as disciplinas de Programação Imperativa Funcional e Lógica para Computação
-## 2025.1 ADS - EMBARQUE DIGITAL
 
 
 ## Equipe:
