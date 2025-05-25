@@ -275,7 +275,7 @@ void inicializarJogo() {
     gerarProposicaoSimples(&prop);
 
     Player *player = getPlayer();
-    setVidas(1);
+    setVidas(5);
     setPontos(0);
 
     static int ch = 0;
