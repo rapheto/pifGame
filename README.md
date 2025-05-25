@@ -69,7 +69,7 @@
         (gdb)run
 
 
-### Compilando (Caso seja necessário)
+#### Compilando (Caso seja necessário)
     Caso o aquivo logica-estela não esteja na pasta pifGame
     Abra seu terminal e vá até a pasta cli-lib
     Em cli-lib use o comando:
