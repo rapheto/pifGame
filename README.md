@@ -1,8 +1,6 @@
-Jogo criado para as disciplinas de Programação Imperativa Funcional e Lógica para computação - 2025.1
+# Jogo criado para as disciplinas de Programação Imperativa Funcional e Lógica para computação - 2025.1
 
-CESAR SCHOOL
-
-EMBARQUE DIGITAL
+# CESAR SCHOOL & EMBARQUE DIGITAL
 
 
 
