@@ -1,14 +1,14 @@
 # CESAR SCHOOL & EMBARQUE DIGITAL
 
 
-## Jogo criado para as disciplinas de Programação Imperativa Funcional e Lógica para Computação - 2025.1
-
-
     #      ##    ###  ###   ###   ##        ###   ###  ###  ###  #      ##    ##
     #     #  #  #      #   #     #  #      #     #      #  #     #     #  #  #  #
     #     #  #  # ##   #   #     #  #      ###   ####   #  ####  #     #  #  ### 
     #     #  #  #  #   #   #     ####      #        #   #  #     #     ####  #  #
      ###   ##    ###  ###   ###  #  #       ###  ###    #   ###   ###  #  #  #  #
+
+
+## Jogo criado para as disciplinas de Programação Imperativa Funcional e Lógica para Computação - 2025.1
 
 
 ## Equipe:
