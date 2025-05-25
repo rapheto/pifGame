@@ -2,6 +2,8 @@
 #include "keyboard.h"
 #include "timer.h"
 #include "player.h"
+#include "ranking.h"
+#include "main.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -20,43 +22,44 @@ void nomeJogador(){
     }
 }
 
-void print_nome_jogo() {
+void printLogo() {
     // Primeira linha
-    screenGotoxy(11, 5);
+    screenGotoxy(11, 6);
     printf("#      ##    ###  ###   ###   ##        ###   ###  ###  ###  #      ##    ##");
     
     // Segunda linha
-    screenGotoxy(11, 6);
+    screenGotoxy(11, 7);
     printf("#     #  #  #      #   #     #  #      #     #      #  #     #     #  #  #  #");
     
     // Terceira linha
-    screenGotoxy(11, 7);
+    screenGotoxy(11, 8);
     printf("#     #  #  # ##   #   #     #  #      ###   ####   #  ####  #     #  #  ### ");
     
     // Quarta linha
-    screenGotoxy(11, 8);
+    screenGotoxy(11, 9);
     printf("#     #  #  #  #   #   #     ####      #        #   #  #     #     ####  #  #");
     
     // Quinta linha
-    screenGotoxy(11, 9);
+    screenGotoxy(11, 10);
     printf(" ###   ##    ###  ###   ###  #  #       ###  ###    #   ###   ###  #  #  #  #");
 }
-
 
 void menuOpcoes(){
     screenClear();
     screenDrawBorders();
 
-    print_nome_jogo();
-    screenGotoxy( (MAXX/2)-10, 14);
-    printf( "Olá, %s!", nickname);
+    printLogo();
 
-    screenGotoxy(35, 18);
+    screenGotoxy(40, 16);
     printf( "1 - Jogar" );
-    screenGotoxy(35, 20);
+    screenGotoxy(40, 18);
     printf( "2 - Como Jogar?" );
-    screenGotoxy(35, 22);
-    printf ("3 - Sair" );
+    screenGotoxy(40, 20);
+    printf ("3 - Ranking" );
+    screenGotoxy(40, 22);
+    printf ("4 - Créditos" );
+    screenGotoxy(40, 24);
+    printf ("5 - Sair" );
 
 }
 
@@ -144,15 +147,92 @@ void comoJogar() {
     printf("            <I-I>");
     
 
-    screenGotoxy((MAXX/2) - 15, 27);
+    screenGotoxy((MAXX/2) - 15, MAXY - 2);
     printf("Pressione ENTER para voltar");
     animacaoNave();
     getchar();
 
 }
 
+void telaCreditos(){
+    screenClear();
+    screenDrawBorders();
 
-int iniciar_menu() {
+    screenGotoxy(45, 5);
+    printf("Criado por");
+
+    screenGotoxy(40, 9);
+    printf( "Alessandra Barbosa" );
+    screenGotoxy(40, 12);
+    printf( "Raphael Miranda" );
+    screenGotoxy(40, 15);
+    printf ("Rayane Cavalcanti");
+    screenGotoxy(40, 18);
+    printf ("Samuel Pereira");
+    
+    screenGotoxy((MAXX/2) - 15, MAXY - 2);
+    printf("Pressione ENTER para voltar");
+    getchar();
+}
+
+void quit(){
+    screenClear();
+    screenDrawBorders();
+    screenGotoxy((MAXX/2)-5, (MAXY/2));
+    printf("Saindo...");
+    screenUpdate();
+    sleep(1);
+    screenClear();
+    exit(0);
+}
+
+void telaDerrota(){
+    Player* p = getPlayer();
+    screenClear();
+    screenDrawBorders();
+    while (1)
+    {
+        screenGotoxy(31, 12);
+        printf("###    ###   ##    ##    ##   ###   ##");
+        
+        // Segunda linha
+        screenGotoxy(31, 13);
+        printf("#  #  #     #  #  #  #  #  #   #   #  #");
+        
+        // Terceira linha
+        screenGotoxy(31, 14);
+        printf("#  #  ####  ###   ###   #  #   #   ####");
+        
+        // Quarta linha
+        screenGotoxy(31, 15);
+        printf("#  #  #     #  #  #  #  #  #   #   #  #");
+        
+        // Quinta linha
+        screenGotoxy(31, 16);
+        printf("###    ###  #  #  #  #   ##    #   #  #");
+
+        screenGotoxy(34, 20);
+        printf( "%s sua pontuação foi: %4d", p->nickname, p->pontos);
+        screenGotoxy(MAXX/2 - 13, 32);
+        printf("ESPAÇO para jogar novamente");
+        screenGotoxy(MAXX/2 - 11, 33);
+        printf("ENTER para ir ao menu");
+
+        if (keyhit()) {
+            int ch = readch();
+            if (ch == 32) {  // Tecla espaço
+                inicializarJogo();
+                break;
+            }
+            else if(ch == 10){
+                menuOpcoes();
+                break;
+            }
+        }
+    } 
+}
+
+int iniciarMenu() {
     nomeJogador();
 
     screenInit(1);
@@ -163,20 +243,24 @@ int iniciar_menu() {
         menuOpcoes();
         int c = getchar();
 
-        if (c == '1') {
-            break;
-        }
-        else if (c == '2') {
-            screenClear();
-            screenDrawBorders();
-            comoJogar(); 
-        }
-        else if (c == '3') {
-            keyboardDestroy();
-            screenDestroy();
-            timerDestroy();
-
-            return 0;
+        switch(c) {
+            case '1': 
+                inicializarJogo();
+                break;
+            case '2': 
+                comoJogar(); 
+                break;
+            case '3':
+                mostrarRanking();
+                getchar();
+                break;
+            case '4': 
+                telaCreditos(); 
+                break;
+            case '5':
+                quit();
+                break;
+                
         }
     }
     return 0;

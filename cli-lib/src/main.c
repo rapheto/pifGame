@@ -7,22 +7,19 @@
 #include "timer.h"
 #include "menu.h"
 #include "player.h"
+#include "ranking.h"
 
 #define MAX_ASTEROIDES 10
 
-float x = 48, y = 33; // Posição Inicial do jogador
-int incX = 1;         // Tamanho da movimentação do jogador
+float x, y; 
+int incX = 1; // Tamanho da movimentação do jogador
 
 // Bool
 int isShooting = 0;
 
 // Bala
 int bulletSpeed = 1;
-int bulletX = 50;
-int bulletY = 31;
-
-//Operadores
-char operadores[][4] = {"∧", "∨", "→", "↔"};
+int bulletX, bulletY;
 
 typedef struct
 {
@@ -40,7 +37,10 @@ typedef struct
 
 Asteroide asteroides[MAX_ASTEROIDES];
 
-//Gerador de proposições
+
+//Gerador de proposições e operadores
+char operadores[][4] = {"∧", "∨", "→", "↔"};
+
 char negar(char valor) {
     return (valor == 'V') ? 'F' : 'V';
 }
@@ -82,9 +82,9 @@ void gerarProposicaoSimples(Proposicao *prop)
 
 
 //Colisores
-void verificarColisaoBala(Player *playerPontos, Proposicao *prop)
+void verificarColisaoBala(Proposicao *prop)
 {
-    playerPontos = getPlayer();
+    Player *playerPontos = getPlayer();
     for (int i = 0; i < MAX_ASTEROIDES; i++)
     {
         if (asteroides[i].ativo)
@@ -129,8 +129,9 @@ void verificarColisaoBala(Player *playerPontos, Proposicao *prop)
     }
 }
 
-void verificarColisaoJogador(Player *player)
+void verificarColisaoJogador()
 {
+    Player *player = getPlayer();
     for (int i = 0; i < MAX_ASTEROIDES; i++)
     {
         if (asteroides[i].ativo)
@@ -138,7 +139,7 @@ void verificarColisaoJogador(Player *player)
             if (asteroides[i].y == y &&
                 asteroides[i].x >= x && asteroides[i].x <= x + 4)
             {
-                player->vidas -= 1;
+                setVidas(player->vidas -= 1);
                 asteroides[i].ativo = 0;
 
                 screenGotoxy(asteroides[i].x, asteroides[i].y);
@@ -153,9 +154,9 @@ void verificarColisaoJogador(Player *player)
 
 
 //Cenário
-void caixaLogica(Proposicao expressao, Player *playerStats)
+void caixaLogica(Proposicao expressao)
 {
-    playerStats = getPlayer();
+    Player *playerStats = getPlayer();
     screenGotoxy(3, 3);
     printf("EXPRESSÃO: %s    RES:%c  ", expressao.valor, expressao.resposta);
     
@@ -189,8 +190,6 @@ void movimentacao(int ch)
     {
         x -= incX;
     }
-
-    screenSetColor(YELLOW, DARKGRAY);
     screenGotoxy(x, y);
     printf("<I-I>");
     screenUpdate();
@@ -270,45 +269,45 @@ void atualizarAsteroides()
     }
 }
 
-void salvarPontuacao(Player *playerPontos){
-    playerPontos = getPlayer();
-    int pontuacao = playerPontos->pontos;
-    FILE *arquivo = fopen("cli-lib/pont/pontos.txt", "a");
-    fprintf(arquivo, "%s: %d\n", playerPontos->nickname, pontuacao);
-    fclose(arquivo);
-}
 
+void inicializarJogo() {
+    Proposicao prop;
+    gerarProposicaoSimples(&prop);
 
-int main()
-{
-    Player player;
+    Player *player = getPlayer();
+    setVidas(5);
+    setPontos(0);
+
     static int ch = 0;
     static long timer = 0;
 
-    iniciar_menu();
+    for (int i = 0; i < MAX_ASTEROIDES; i++) {
+        asteroides[i].ativo = 0;
+    }
 
-    Proposicao propAtual;
-    gerarProposicaoSimples(&propAtual);
+    x = 48;
+    y = 33; // Posição Inicial do jogador
+    bulletX = 50;
+    bulletY = 31;
+    isShooting = 0;
 
     srand(time(NULL)); // Inicializa números aleatórios
-
     screenInit(1);
     keyboardInit();
     timerInit(50);
-    caixaLogica(propAtual, &player);
-    while (ch != 10 && timer <= 1000)
-    {
-        caixaLogica(propAtual, &player);
-        if (keyhit())
-        {
-            ch = readch();
 
-            if (ch == 32 && !isShooting)
-            {
+    caixaLogica(prop);
+    movimentacao(100);
+    screenUpdate();
+
+    while (player->vidas > 0) {
+        caixaLogica(prop);
+        if (keyhit()) {
+            int ch = readch();
+            if (ch == 32 && !isShooting) {  // Tecla espaço
                 atirar();
             }
-            else
-            {
+            else{
                 movimentacao(ch);
             }
         }
@@ -318,7 +317,7 @@ int main()
             if (isShooting)
             {
                 bullet();
-                verificarColisaoBala(&player, &propAtual);
+                verificarColisaoBala(&prop);
             }
 
             if (rand() % 10 == 0)
@@ -328,17 +327,20 @@ int main()
 
             atualizarAsteroides();
 
-            verificarColisaoJogador(&player);
+            verificarColisaoJogador();
 
             screenUpdate();
             timer++;
         }
     }
-    salvarPontuacao(&player);
+    salvarPontuacao();
+    telaDerrota();
+}
 
-    keyboardDestroy();
-    screenDestroy();
-    timerDestroy();
 
+int main()
+{
+    screenSetColor(WHITE, BLACK);
+    iniciarMenu();
     return 0;
 }
