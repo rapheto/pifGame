@@ -32,7 +32,7 @@
 
 
 
-### Objetivos
+## Objetivos
     O desafio é sobreviver o maior tempo possível, tomando decisões rápidas com base no
     raciocínio lógico, enquanto os obstáculos descem em direção à nave. Assim, o jogo
     combina habilidade, reflexo e aprendizado, reforçando o entendimento de expressões
