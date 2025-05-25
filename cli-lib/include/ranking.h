@@ -2,6 +2,7 @@
 #define RANKING_H
 
 void salvarPontuacao();
+
 void mostrarRanking();
 
 #endif

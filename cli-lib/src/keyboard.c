@@ -13,8 +13,8 @@
 static struct termios initialSettings, newSettings;
 static int peekCharacter;
 
-
-void keyboardInit()
+//Inicia o teclado
+void keyboardInit() 
 {
     tcgetattr(0,&initialSettings);
     newSettings = initialSettings;
@@ -26,11 +26,13 @@ void keyboardInit()
     tcsetattr(0, TCSANOW, &newSettings);
 }
 
+//Destroi o teclado
 void keyboardDestroy()
 {
     tcsetattr(0, TCSANOW, &initialSettings);
 }
 
+//Identifica o clique
 int keyhit()
 {
     unsigned char ch;
@@ -53,6 +55,7 @@ int keyhit()
     return 0;
 }
 
+//Lê qual tecla está sendo pressionada
 int readch()
 {
     char ch;
